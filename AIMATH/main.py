@@ -6,7 +6,7 @@ from datetime import datetime
 
 # Import the market and strategy modules
 import market as mk
-from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy,NewsReaderStrategy, Trader
+from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy,NewsReaderStrategy, NewsReaderStrategy_Hidden, Trader
 
 
 def main():
@@ -18,14 +18,16 @@ def main():
         Trader(name="Alice", description="ScaredyCat trader", init_balance=10000, trade_freq=1),
         Trader(name="Bob", description="GoldfishMemory trader", init_balance=10000, trade_freq=1),
         Trader(name="Charlie", description="Random trader", init_balance=10000, trade_freq=1),
-        Trader(name="Eve", description="NewsReader trader", init_balance=10000, trade_freq=1)
+        Trader(name="Eve", description="NewsReader trader", init_balance=10000, trade_freq=1),
+        Trader(name="Eve_Hidden", description="NewsReader_Hidden trader", init_balance=10000, trade_freq=1)
     ]
 
     # Assign strategies to traders
     traders[0].change_strategy(ScaredyCatStrategy(), trade_freq=1)
     traders[1].change_strategy(GoldfishMemoryStrategy(), trade_freq=1)
     traders[2].change_strategy(GoldfishMemoryStrategy(), trade_freq=10)
-    traders[3].change_strategy(NewsReaderStrategy(), trade_freq=50)
+    traders[3].change_strategy(NewsReaderStrategy(), trade_freq=10)
+    traders[4].change_strategy(NewsReaderStrategy_Hidden(), trade_freq=10)
 
     # Variables to track data for visualization
     dates = [market.current_date]

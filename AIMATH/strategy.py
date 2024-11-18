@@ -17,7 +17,7 @@ class Action:
 
 
 class Strategy:
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         raise NotImplementedError("decide_actions() must be implemented by subclasses.")
     
     def objective_func(self):
@@ -27,7 +27,7 @@ class Strategy:
 class ScaredyCatStrategy(Strategy):
     """A strategy that sells all holdings immediately."""
 
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock in portfolio:
             if stock.quantity > 0:
@@ -38,7 +38,7 @@ class ScaredyCatStrategy(Strategy):
 class GoldfishMemoryStrategy(Strategy):
     """A strategy that only considers the most recent predictions."""
 
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock_name, current_price in curr_prices.items():
             predicted_price = predictions.get(stock_name, current_price)
@@ -64,7 +64,7 @@ class GoldfishMemoryStrategy(Strategy):
 class OptimisticStrategy(Strategy):
     """A strategy that buys all stocks."""
 
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock_name, current_price in curr_prices.items():
             max_shares = int(curr_balance // current_price)
@@ -75,7 +75,7 @@ class OptimisticStrategy(Strategy):
 class DeepStateStrategy(Strategy):
     """A strategy that buys all stocks."""
 
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock_name, current_price in curr_prices.items():
             max_shares = int(curr_balance // current_price)
@@ -87,7 +87,7 @@ class DemocraticStrategy(Strategy):
     """A strategy that buys all stocks."""
     """total 10 people, 3people are optimistic, 3people are deepstate, 4people are scaredycat"""
     """people dynamically change their strategy"""
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock_name, current_price in curr_prices.items():
             max_shares = int(curr_balance // current_price)
@@ -98,7 +98,7 @@ class DemocraticStrategy(Strategy):
 class ConspiracyTheoryStrategy(Strategy):
     """A strategy that buys all stocks."""
 
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock_name, current_price in curr_prices.items():
             max_shares = int(curr_balance // current_price)
@@ -108,7 +108,7 @@ class ConspiracyTheoryStrategy(Strategy):
 
 class GamblerStrategy(Strategy):
     """buys stocks with high risk"""
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
         for stock_name, current_price in curr_prices.items():
             max_shares = int(curr_balance // current_price)
@@ -121,18 +121,64 @@ class NewsReaderStrategy(Strategy):
     def __init__(self):
         super().__init__()
         self.model = llm.init_llm()
-    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date):
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
+        stock_names = []
+        for stock in market.stocks.keys():
+            stock_names.append(stock)
+        predictions = llm.ask_llm(self.model, stock_names, curr_date, obj_date)
+        #ex) prediction = "stockA:up/down, 0.5\nstockBup/down, 0.5\n"
+        stock_list =[]
+        for stock in predictions.split("\n"):
+            stock_list.append(stock)
+        updownDict = {}
+        for stock in stock_list:
+            splited = stock.split(":")
+            if len(splited) <= 1:
+                continue
+            updownDict[splited[0]] = splited[1]
         for stock_name, current_price in curr_prices.items():
-            prediction = llm.ask_llm(self.model, stock_name, curr_date, obj_date)
-            #ex) prediction = "up/down, 0.5"
-            up_down = prediction.split(",")[0]
-            intensity = float(prediction.split(",")[1])
-            if up_down == "up":
+            up_down = updownDict[stock_name].split(",")[0]
+            intensity = float(updownDict[stock_name].split(",")[1])
+            if 'up' in up_down:
                 max_shares = int(curr_balance // current_price)
                 if max_shares > 0:
                     actions.append(Action('buy', stock_name, max_shares* intensity))
-            elif up_down == "down":
+            elif 'down' in up_down:
+                for stock in portfolio:
+                    if stock.name == stock_name and stock.quantity > 0:
+                        actions.append(Action('sell', stock_name, stock.quantity* intensity))
+        return actions
+
+class NewsReaderStrategy_Hidden(Strategy):
+    """GPT analysis"""
+    def __init__(self):
+        super().__init__()
+        self.model = llm.init_llm()
+    def decide_actions(self, predictions, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
+        actions = []
+        stock_names = []
+        for stock in market.stocks.keys():
+            stock_names.append(stock)
+        predictions = llm.ask_llm_info_hidden(self.model, stock_names, curr_prices)
+        #ex) prediction = "up/down,
+        stock_list =[]
+        for stock in predictions.split("\n"):
+            stock_list.append(stock)
+        updownDict = {}
+        for stock in stock_list:
+            splited = stock.split(":")
+            if len(splited) <= 1:
+                continue
+            updownDict[splited[0]] = splited[1]
+        for stock_name, current_price in curr_prices.items():
+            up_down = updownDict[stock_name].split(",")[0]
+            intensity = float(updownDict[stock_name].split(",")[1])
+            if 'up' in up_down:
+                max_shares = int(curr_balance // current_price)
+                if max_shares > 0:
+                    actions.append(Action('buy', stock_name, max_shares* intensity))
+            elif 'down' in up_down:
                 for stock in portfolio:
                     if stock.name == stock_name and stock.quantity > 0:
                         actions.append(Action('sell', stock_name, stock.quantity* intensity))
@@ -199,7 +245,7 @@ class Trader:
         if self.strategy is None:
             raise Exception(f"{self.name} has no strategy set.")
 
-        actions = self.strategy.decide_actions(predictions, curr_prices, self.portfolio, self.balance, market.current_date, market.get_next_day())
+        actions = self.strategy.decide_actions(predictions, curr_prices, self.portfolio, self.balance, market.current_date, market.get_next_day(), market)
 
         for action in actions:
             stock_name = action.stock_name
