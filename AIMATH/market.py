@@ -9,7 +9,7 @@ class Market:
         :param tickers: List of stock tickers (e.g., ['AAPL', 'GOOGL'])
         :param curr_date: The current date in 'YYYY-MM-DD' format.
         """
-        data = yf.download(tickers, start="2021-01-01", end=curr_date)
+        data = yf.download(tickers, start="2021-01-01")
         # Restructure the data into a dictionary: {ticker: {date: price}}
         self.stocks = {}
         self.tickers = tickers
@@ -27,12 +27,12 @@ class Market:
         :param date: Date as a string (e.g., '2021-01-01').
         """
         # Download data for the specific date range (which will just be this one day)
-        stock_data = yf.download(self.tickers, start=date, end=(datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d'))
+        #stock_data = yf.download(self.tickers, start=date, end=(datetime.strptime(date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d'))
 
         for stock_name in self.tickers:
             # Extract and add the closing price if available
-            if not stock_data.empty and 'Close' in stock_data:
-                price = stock_data['Close'][stock_name].iloc[0]
+            if not self.stocks and 'Close' in self.stocks:
+                price = self.stocks['Close'][stock_name].iloc[0]
                 self.stocks[stock_name][date] = price
         self.current_date = date
 

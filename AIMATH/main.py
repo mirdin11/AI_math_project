@@ -1,11 +1,15 @@
 # main.py
 import random
+import matplotlib
 import matplotlib.pyplot as plt
 from datetime import datetime
 
 # Import the market and strategy modules
 import market as mk
 from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy, Trader
+
+
+
 
 
 def main():
