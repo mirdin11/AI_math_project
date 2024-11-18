@@ -6,26 +6,26 @@ from datetime import datetime
 
 # Import the market and strategy modules
 import market as mk
-from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy, Trader
+from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy,NewsReaderStrategy, Trader
 
 
 def main():
     # Initialize the market with data up to '2021-01-10'
-    market = mk.Market(['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'], curr_date='2021-01-10')
+    market = mk.Market(['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'], curr_date='2020-01-10')
 
     # Initialize traders with different strategies
     traders = [
         Trader(name="Alice", description="ScaredyCat trader", init_balance=10000, trade_freq=1),
         Trader(name="Bob", description="GoldfishMemory trader", init_balance=10000, trade_freq=1),
         Trader(name="Charlie", description="Random trader", init_balance=10000, trade_freq=1),
-        Trader(name="David", description="GoldfishMemory trader", init_balance=10000, trade_freq=1)
+        Trader(name="Eve", description="NewsReader trader", init_balance=10000, trade_freq=1)
     ]
 
     # Assign strategies to traders
     traders[0].change_strategy(ScaredyCatStrategy(), trade_freq=1)
     traders[1].change_strategy(GoldfishMemoryStrategy(), trade_freq=1)
     traders[2].change_strategy(GoldfishMemoryStrategy(), trade_freq=10)
-    traders[3].change_strategy(GoldfishMemoryStrategy(), trade_freq=50)
+    traders[3].change_strategy(NewsReaderStrategy(), trade_freq=50)
 
     # Variables to track data for visualization
     dates = [market.current_date]
@@ -34,7 +34,7 @@ def main():
                      for trader in traders}
 
     # Simulate market for 10 trading days
-    for _ in range(200):
+    for _ in range(300):
         market.next_day()
         current_prices = market.get_stock_prices(market.current_date)
         dates.append(market.current_date)
@@ -46,7 +46,7 @@ def main():
         # Traders make decisions based on predictions and current prices
         for trader in traders:
             predictions = trader.get_predictions(current_prices)
-            trader.take_action(predictions, current_prices)
+            trader.take_action(predictions, current_prices, market)
 
             # Record trader portfolio value
             trader_values[trader.name].append(trader.get_total_value(current_prices))
