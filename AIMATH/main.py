@@ -9,9 +9,6 @@ import market as mk
 from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy, Trader
 
 
-
-
-
 def main():
     # Initialize the market with data up to '2021-01-10'
     market = mk.Market(['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'], curr_date='2021-01-10')
@@ -19,12 +16,16 @@ def main():
     # Initialize traders with different strategies
     traders = [
         Trader(name="Alice", description="ScaredyCat trader", init_balance=10000, trade_freq=1),
-        Trader(name="Bob", description="GoldfishMemory trader", init_balance=10000, trade_freq=1)
+        Trader(name="Bob", description="GoldfishMemory trader", init_balance=10000, trade_freq=1),
+        Trader(name="Charlie", description="Random trader", init_balance=10000, trade_freq=1),
+        Trader(name="David", description="GoldfishMemory trader", init_balance=10000, trade_freq=1)
     ]
 
     # Assign strategies to traders
     traders[0].change_strategy(ScaredyCatStrategy(), trade_freq=1)
     traders[1].change_strategy(GoldfishMemoryStrategy(), trade_freq=1)
+    traders[2].change_strategy(GoldfishMemoryStrategy(), trade_freq=10)
+    traders[3].change_strategy(GoldfishMemoryStrategy(), trade_freq=50)
 
     # Variables to track data for visualization
     dates = [market.current_date]
@@ -51,20 +52,20 @@ def main():
             trader_values[trader.name].append(trader.get_total_value(current_prices))
 
     # Plotting market prices for selected stocks
-    plt.figure(figsize=(14, 6))
-    for ticker, prices in market_prices.items():
-        valid_dates = [dates[i] for i in range(len(prices)) if prices[i] is not None]
-        valid_prices = [prices[i] for i in range(len(prices)) if prices[i] is not None]
-        if valid_prices:
-            plt.plot(valid_dates, valid_prices, label=ticker)
+    #plt.figure(figsize=(14, 6))
+    #for ticker, prices in market_prices.items():
+    #    valid_dates = [dates[i] for i in range(len(prices)) if prices[i] is not None]
+    #    valid_prices = [prices[i] for i in range(len(prices)) if prices[i] is not None]
+    #    if valid_prices:
+    #        plt.plot(valid_dates, valid_prices, label=ticker)
 
-    plt.xlabel('Date')
-    plt.ylabel('Stock Price ($)')
-    plt.title('Market Prices of Stocks Over Time')
-    plt.xticks(rotation=45)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+    #plt.xlabel('Date')
+    #plt.ylabel('Stock Price ($)')
+    #plt.title('Market Prices of Stocks Over Time')
+    #plt.xticks(rotation=45)
+    #plt.legend()
+    #plt.tight_layout()
+    #plt.show()
 
     # Plotting each trader's portfolio value over time
     plt.figure(figsize=(14, 6))
