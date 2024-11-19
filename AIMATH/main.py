@@ -6,7 +6,8 @@ from datetime import datetime
 
 # Import the market and strategy modules
 import market as mk
-from strategy import ScaredyCatStrategy, GoldfishMemoryStrategy,NewsReaderStrategy, NewsReaderStrategy_Hidden, Trader
+from trader import Trader
+from strat_module import ScaredyCatStrategy, GoldfishMemoryStrategy, NewsReaderStrategy, NewsReaderStrategy_Hidden
 
 
 def main():
