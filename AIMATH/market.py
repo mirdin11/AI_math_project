@@ -79,7 +79,7 @@ class Market:
         Get the price of a specific stock on a specific date.
         :param name: Stock ticker (e.g., 'AAPL').
         :param date: Date as a string (e.g., '2021-01-01').
-        :return: Price of the stock on the given date.
+        :return: Dictionary price of the stock on the given date.
         """
         return self.stocks.get(name, {}).get(date, None)
     

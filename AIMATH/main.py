@@ -8,20 +8,23 @@ from datetime import datetime
 import market as mk
 from trader import Trader
 from strat_module import ScaredyCatStrategy, GoldfishMemoryStrategy, NewsReaderStrategy, NewsReaderStrategy_Hidden
+from prediction_module import RandomPrediction, LSTMPrediction, LLMPrediction, OptimistPrediction, PessimistPrediction, GoldfishMemoryPrediction
 
 
 def main():
     # Initialize the market with data up to '2021-01-10'
-    market = mk.Market(['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'], curr_date='2020-01-10')
+    market = mk.Market(['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'], curr_date='2021-01-10')
 
     # Initialize traders with different strategies
     traders = [
-        Trader(name="Alice", description="ScaredyCat trader", init_balance=10000, trade_freq=1),
+        Trader(name="Alice", description="ScaredyCat trader", init_balance=10000,trade_freq=1),
         Trader(name="Bob", description="GoldfishMemory trader", init_balance=10000, trade_freq=1),
         Trader(name="Charlie", description="Random trader", init_balance=10000, trade_freq=1),
         Trader(name="Eve", description="NewsReader trader", init_balance=10000, trade_freq=1),
         Trader(name="Eve_Hidden", description="NewsReader_Hidden trader", init_balance=10000, trade_freq=1)
     ]
+    
+
 
     # Assign strategies to traders
     traders[0].change_strategy(ScaredyCatStrategy(), trade_freq=1)
@@ -37,7 +40,7 @@ def main():
                      for trader in traders}
 
     # Simulate market for 10 trading days
-    for _ in range(300):
+    for _ in range(600):
         market.next_day()
         current_prices = market.get_stock_prices(market.current_date)
         dates.append(market.current_date)
@@ -48,7 +51,7 @@ def main():
 
         # Traders make decisions based on predictions and current prices
         for trader in traders:
-            predictions = trader.get_predictions(current_prices)
+            predictions = trader.strategy.prediction_model.predict(current_prices)
             trader.take_action(predictions, current_prices, market)
 
             # Record trader portfolio value
@@ -81,6 +84,23 @@ def main():
     plt.legend()
     plt.tight_layout()
     plt.show()
+
+    
+    #ticker stock price
+    plt.figure(figsize=(14, 6))
+    for ticker, prices in market_prices.items():
+        valid_dates = [dates[i] for i in range(len(prices)) if prices[i] is not None]
+        valid_prices = [prices[i] for i in range(len(prices)) if prices[i] is not None]
+        if valid_prices:
+            plt.plot(valid_dates, valid_prices, label=ticker)
+    plt.xlabel('Date')
+    plt.ylabel('Stock Price ($)')
+    plt.title('Market Prices of Stocks Over Time')
+    plt.xticks(rotation=45)
+    plt.legend()
+    plt.show()
+
+    
 
 
 if __name__ == "__main__":
