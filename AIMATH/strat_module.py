@@ -15,12 +15,9 @@ class Strategy:
     def decide_actions(self, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         raise NotImplementedError("decide_actions() must be implemented by subclasses.")
     
-    def predict_prices(self, market):
-        return self.prediction_model.predict(market)
-    #risk factor
-    #returns porfolio that maximizes the objective function
-    def objective_func(self, risk_factor, profit_factor, predictions):
-        raise NotImplementedError("objective_func() must be implemented by subclasses.")
+    def predict_prices(self, tickers, market):
+        return self.prediction_model.predict(tickers, market)
+    
     
     def change_prediction_model_to(self, prediction_model):
         self.prediction_model = prediction_model
@@ -211,7 +208,6 @@ class GamblerStrategy(Strategy):
 class NewsReaderStrategy(Strategy):
     """GPT analysis"""
     def __init__(self):
-        super().__init__()
         self.model = llm.init_llm()
     def decide_actions(self, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []
@@ -245,7 +241,6 @@ class NewsReaderStrategy(Strategy):
 class NewsReaderStrategy_Hidden(Strategy):
     """GPT analysis"""
     def __init__(self):
-        super().__init__()
         self.model = llm.init_llm()
     def decide_actions(self, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         actions = []

@@ -27,9 +27,9 @@ def main():
 
 
     # Assign strategies to traders
-    traders[0].change_strategy(ScaredyCatStrategy(), trade_freq=1)
-    traders[1].change_strategy(GoldfishMemoryStrategy(), trade_freq=1)
-    traders[2].change_strategy(GoldfishMemoryStrategy(), trade_freq=10)
+    traders[0].change_strategy(ScaredyCatStrategy(RandomPrediction), trade_freq=1)
+    traders[1].change_strategy(GoldfishMemoryStrategy(RandomPrediction), trade_freq=1)
+    traders[2].change_strategy(GoldfishMemoryStrategy(RandomPrediction), trade_freq=10)
     traders[3].change_strategy(NewsReaderStrategy(), trade_freq=10)
     traders[4].change_strategy(NewsReaderStrategy_Hidden(), trade_freq=10)
 
@@ -51,8 +51,8 @@ def main():
 
         # Traders make decisions based on predictions and current prices
         for trader in traders:
-            predictions = trader.strategy.prediction_model.predict(current_prices)
-            trader.take_action(predictions, current_prices, market)
+            predictions = trader.strategy.prediction_model.predict(trader.strategy.prediction_model, market)
+            trader.take_action(predictions, market)
 
             # Record trader portfolio value
             trader_values[trader.name].append(trader.get_total_value(current_prices))
