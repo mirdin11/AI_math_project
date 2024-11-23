@@ -51,7 +51,7 @@ def main():
 
         # Traders make decisions based on predictions and current prices
         for trader in traders:
-            predictions = trader.strategy.prediction_model.predict(trader.strategy.prediction_model, market)
+            predictions = trader.strategy.prediction_model.predict(trader.strategy.prediction_model,  market)
             trader.take_action(predictions, market)
 
             # Record trader portfolio value
