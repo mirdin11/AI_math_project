@@ -23,7 +23,6 @@ def main():
         Trader(name="Eve", description="NewsReader trader", init_balance=10000, trade_freq=1),
         Trader(name="Eve_Hidden", description="NewsReader_Hidden trader", init_balance=10000, trade_freq=1)
     ]
-    
 
 
     # Assign strategies to traders
