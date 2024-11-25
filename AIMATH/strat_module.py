@@ -65,23 +65,15 @@ class OptimisticStrategy(Strategy):
     """A strategy that buys all stocks."""
 
     def decide_actions(self, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
-        actions = []
-        for stock_name, current_price in curr_prices.items():
-            max_shares = int(curr_balance // current_price)
-            if max_shares > 0:
-                actions.append(Action('buy', stock_name, max_shares))
-        return actions
+        predictions = self.predict_prices(market)
+        return self.construct_action_list(predictions, portfolio)
 
 class DeepStateStrategy(Strategy):
     """A strategy that buys all stocks."""
 
     def decide_actions(self, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
-        actions = []
-        for stock_name, current_price in curr_prices.items():
-            max_shares = int(curr_balance // current_price)
-            if max_shares > 0:
-                actions.append(Action('buy', stock_name, max_shares))
-        return actions
+        predictions = self.predict_prices(market)
+        return self.construct_action_list(predictions, portfolio)
 
 class DemocraticStrategy(Strategy):
     class Personality:
@@ -115,30 +107,9 @@ class DemocraticStrategy(Strategy):
 
     def decide_actions(self, curr_prices, portfolio, curr_balance, curr_date, obj_date, market):
         predictions = self.predict_prices(market)
-        actions = []
-        for stock_name, current_price in curr_prices.items():
-            net_action_score = 0
-            for agent_weight in self.agent_weights:
-                personality = agent_weight.personality
-                weight = agent_weight.weight
-                predicted_price = predictions.get(stock_name, current_price)
-                if predicted_price > current_price:
-                    net_action_score += personality.buy_inclination * weight
-                elif predicted_price < current_price:
-                    net_action_score -= personality.sell_inclination * weight
-            if net_action_score > 0:
-                # 매수
-                max_shares = int(curr_balance // current_price)
-                if max_shares > 0:
-                    actions.append(Action('buy', stock_name, max_shares))
-            elif net_action_score < 0:
-                # 매도
-                stock = self.get_stock_from_portfolio(portfolio, stock_name)
-                if stock and stock.quantity > 0:
-                    actions.append(Action('sell', stock_name, stock.quantity))
-            else:
-                actions.append(Action('hold', stock_name))
-        return actions
+        #obj_portfolio = self.objective_func(risk_factor, profit_factor, predictions)
+        return self.construct_action_list(predictions, portfolio)
+    
     def update_parameters(self, actual_prices, predicted_prices):
         # 오차 계산
         errors = {}
