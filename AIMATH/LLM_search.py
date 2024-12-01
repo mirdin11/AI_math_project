@@ -1,7 +1,8 @@
 
 import google.generativeai as genai
 import os
-
+import market as mk
+import pandas as pd
 
 def init_llm():
     # Set up your API key
@@ -35,7 +36,10 @@ def ask_llm_info_hidden(model, stock_names, curr_prices):
 def main():
     stock_names = ['AAPL', 'GOOGL', 'AMZN', 'MSFT', 'TSLA'] 
     model = init_llm()
-    ask_llm(model, stock_names)
+    days = 30
+    market = mk.Market(stock_names, curr_date='2021-01-10')
+    prices = market.get_stock_prices('2021-01-10')
+    
 
 if __name__ == "__main__":
     main()
