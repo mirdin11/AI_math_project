@@ -37,7 +37,7 @@ def main():
                      for trader in traders}
 
     # Simulate market for 10 trading days
-    for _ in range(300):
+    for _ in range(252):
         market.next_day()
         current_prices = market.get_stock_prices(market.current_date)
         dates.append(market.current_date)
