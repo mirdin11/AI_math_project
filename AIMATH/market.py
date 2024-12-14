@@ -9,7 +9,7 @@ class Market:
         :param tickers: List of stock tickers (e.g., ['AAPL', 'GOOGL'])
         :param curr_date: The current date in 'YYYY-MM-DD' format.
         """
-        data = yf.download(tickers, start="2021-01-01")
+        data = yf.download(tickers, start="2019-01-01")
         # Restructure the data into a dictionary: {ticker: {date: price}}
         self.stocks = {}
         self.tickers = tickers
@@ -36,14 +36,18 @@ class Market:
                 self.stocks[stock_name][date] = price
         self.current_date = date
 
+    def get_next_day(self):
+        date = datetime.strptime(self.current_date, '%Y-%m-%d')
+        next_date = date + timedelta(days=1)
+        return next_date.strftime('%Y-%m-%d')
+
     def next_day(self):
         """
         Move the market to the next trading day.
         If it's a weekend, move to the following Monday.
         """
-        date = datetime.strptime(self.current_date, '%Y-%m-%d')
-        next_date = date + timedelta(days=1)
-
+        next_date_string = self.get_next_day()
+        next_date = datetime.strptime(next_date_string, '%Y-%m-%d')
         # Skip weekends
         while next_date.weekday() >= 5:  # 5 is Saturday, 6 is Sunday
             next_date += timedelta(days=1)
@@ -94,6 +98,8 @@ class Market:
         :return: Dictionary of date: price for the stock.
         """
         return self.stocks.get(stock_name, None)
+    
+    
 
 
 def main():
