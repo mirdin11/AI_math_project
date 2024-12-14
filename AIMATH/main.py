@@ -82,6 +82,18 @@ def main():
     plt.tight_layout()
     plt.show()
 
+    # Ticker prices for the whole period
+    plt.figure(figsize=(14, 6))
+    for ticker, prices in market_prices.items():
+        plt.plot(dates, prices, label=ticker)
+    plt.xlabel('Date')
+    plt.ylabel('Stock Price ($)')
+    plt.title('Market Prices of Stocks Over Time')
+    plt.xticks(rotation=45)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
 
 if __name__ == "__main__":
     main()
